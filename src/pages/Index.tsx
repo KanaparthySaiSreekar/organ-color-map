@@ -1,8 +1,9 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, ArrowRight, Check, X } from 'lucide-react';
+import { Upload, ArrowRight, Check, X, ArrowLeft } from 'lucide-react';
 import { toast } from "sonner";
+import { Link } from 'react-router-dom';
 import OrganLegend from '@/components/OrganLegend';
 import ImageCard from '@/components/ImageCard';
 
@@ -148,6 +149,10 @@ const Index = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
+          <Link to="/" className="inline-flex items-center gap-2 text-primary hover:underline mb-4">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
           <motion.div
             className="inline-block mb-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
             initial={{ opacity: 0, scale: 0.9 }}
