@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, ArrowRight, Check, X, ArrowLeft, Info } from 'lucide-react';
@@ -7,7 +6,7 @@ import { Link } from 'react-router-dom';
 import OrganLegend from '@/components/OrganLegend';
 import ImageCard from '@/components/ImageCard';
 import ImageDescription from '@/components/ImageDescription';
-import { generateImageDescription } from '@/services/geminiService';
+import { generateImageDescription, processImage } from '@/services/geminiService';
 
 const Index = () => {
   const [imageURL, setImageURL] = useState<string>('');
@@ -72,26 +71,10 @@ const Index = () => {
     }
     
     setIsProcessing(true);
-    const formData = new FormData();
-    formData.append('image', file);
     
     try {
-      const response = await fetch('http://localhost:5000/process_image', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error processing image:', errorData.error);
-        toast.error("Processing failed", {
-          description: errorData.error || "An unknown error occurred.",
-          icon: <X className="h-4 w-4" />,
-        });
-        return;
-      }
-      
-      const blob = await response.blob();
+      // Use the mock processImage function instead of fetching from backend
+      const blob = await processImage(file);
       const outputImageURL = URL.createObjectURL(blob);
       setOutputImageURL(outputImageURL);
       setResultDescription(null); // Reset description when new result is generated
@@ -103,7 +86,7 @@ const Index = () => {
     } catch (error) {
       console.error('Error processing image:', error);
       toast.error("Processing failed", {
-        description: "Could not connect to the server. Please try again.",
+        description: "Could not process the image. Please try again.",
         icon: <X className="h-4 w-4" />,
       });
     } finally {
@@ -132,6 +115,7 @@ const Index = () => {
         const base64data = reader.result as string;
         
         try {
+          // Use the mock generateImageDescription function
           const description = await generateImageDescription(base64data);
           setResultDescription(description);
           

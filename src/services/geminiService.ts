@@ -1,33 +1,34 @@
 
 /**
  * Service for interacting with the Gemini API
+ * Mock implementation for demo purposes
  */
 
-// Function to generate a description from an image using Gemini API
+// Function to generate a description from an image using Gemini API (mock for demo purposes)
 export async function generateImageDescription(imageBase64: string): Promise<string> {
-  try {
-    // Remove data URL prefix if present
-    const base64Data = imageBase64.includes('base64,') 
-      ? imageBase64.split('base64,')[1]
-      : imageBase64;
-    
-    const response = await fetch('http://localhost:5000/generate_description', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ image: base64Data }),
-    });
+  // For demo purposes, we'll return a mock response
+  // This simulates a response from the Gemini API without needing a backend
+  console.log("Mock Gemini API called with image data");
+  
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  // Return mock description
+  return "This segmented medical image shows multiple colored regions representing different organs. The liver appears in red in the upper portion, while the kidneys are visible in green on either side of the spine. The spleen is represented in blue in the upper left quadrant. The segmentation successfully identifies and isolates these key abdominal organs with clear boundaries between tissue types, which could be useful for surgical planning or anatomical education.";
+}
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to generate description');
-    }
-
-    const data = await response.json();
-    return data.description;
-  } catch (error) {
-    console.error('Error generating image description:', error);
-    throw new Error('Failed to generate description. Please try again.');
-  }
+// Mock function to process an image (replaces backend API call)
+export async function processImage(file: File): Promise<Blob> {
+  console.log("Mock image processing called");
+  
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  // For demo purposes, we'll use a pre-segmented sample image
+  // In a real application, this would be the result of processing on the backend
+  const segmentedImageURL = 'https://i.imgur.com/ZsZPjrE.png'; // Sample segmented image
+  
+  // Fetch the sample image and return it as a blob
+  const response = await fetch(segmentedImageURL);
+  return await response.blob();
 }
