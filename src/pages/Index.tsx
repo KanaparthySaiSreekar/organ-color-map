@@ -27,7 +27,7 @@ const Index = () => {
     const imageURL = URL.createObjectURL(selectedFile);
     setImageURL(imageURL);
     setOutputImageURL('');
-    setDescription(null);
+    setResultDescription(null);
     
     toast.success("Image uploaded successfully", {
       description: "You can now process the image.",
@@ -181,7 +181,7 @@ const Index = () => {
     setImageURL('');
     setOutputImageURL('');
     setFile(null);
-    setDescription(null);
+    setResultDescription(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
