@@ -1,11 +1,12 @@
-
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, ArrowRight, Check, X, ArrowLeft } from 'lucide-react';
+import { Upload, ArrowRight, Check, X, ArrowLeft, Info } from 'lucide-react';
 import { toast } from "sonner";
 import { Link } from 'react-router-dom';
 import OrganLegend from '@/components/OrganLegend';
 import ImageCard from '@/components/ImageCard';
+import ImageDescription from '@/components/ImageDescription';
+import { generateImageDescription } from '@/services/geminiService';
 
 const Index = () => {
   const [imageURL, setImageURL] = useState<string>('');
@@ -13,6 +14,8 @@ const Index = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [description, setDescription] = useState<string | null>(null);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,6 +26,7 @@ const Index = () => {
     const imageURL = URL.createObjectURL(selectedFile);
     setImageURL(imageURL);
     setOutputImageURL('');
+    setDescription(null);
     
     toast.success("Image uploaded successfully", {
       description: "You can now process the image.",
@@ -105,6 +109,56 @@ const Index = () => {
     }
   };
 
+  const handleGenerateDescription = async () => {
+    if (!imageURL) {
+      toast.error("No image to analyze", {
+        description: "Please upload an image first.",
+        icon: <X className="h-4 w-4" />,
+      });
+      return;
+    }
+
+    setIsGeneratingDescription(true);
+    
+    try {
+      // Convert image to base64
+      const response = await fetch(imageURL);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      
+      reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        
+        try {
+          const description = await generateImageDescription(base64data);
+          setDescription(description);
+          
+          toast.success("Description generated", {
+            description: "AI analysis complete.",
+            icon: <Check className="h-4 w-4" />,
+          });
+        } catch (error) {
+          console.error('Error:', error);
+          toast.error("Failed to generate description", {
+            description: "Please try again later.",
+            icon: <X className="h-4 w-4" />,
+          });
+        } finally {
+          setIsGeneratingDescription(false);
+        }
+      };
+      
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error('Error converting image:', error);
+      toast.error("Failed to process image", {
+        description: "Please try again later.",
+        icon: <X className="h-4 w-4" />,
+      });
+      setIsGeneratingDescription(false);
+    }
+  };
+
   const handleDownload = () => {
     if (!outputImageURL) return;
     
@@ -125,6 +179,7 @@ const Index = () => {
     setImageURL('');
     setOutputImageURL('');
     setFile(null);
+    setDescription(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -205,6 +260,14 @@ const Index = () => {
                 />
               )}
             </motion.div>
+            
+            {/* Image Description Component */}
+            <ImageDescription
+              imageURL={imageURL}
+              description={description}
+              isGenerating={isGeneratingDescription}
+              onGenerateDescription={handleGenerateDescription}
+            />
             
             <motion.div
               initial={{ opacity: 0 }}
