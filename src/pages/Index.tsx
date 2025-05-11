@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, ArrowRight, Check, X, ArrowLeft, Info } from 'lucide-react';
@@ -14,7 +15,7 @@ const Index = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [description, setDescription] = useState<string | null>(null);
+  const [resultDescription, setResultDescription] = useState<string | null>(null);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,6 +94,7 @@ const Index = () => {
       const blob = await response.blob();
       const outputImageURL = URL.createObjectURL(blob);
       setOutputImageURL(outputImageURL);
+      setResultDescription(null); // Reset description when new result is generated
       
       toast.success("Image processed successfully", {
         description: "Your segmented image is ready.",
@@ -109,10 +111,10 @@ const Index = () => {
     }
   };
 
-  const handleGenerateDescription = async () => {
-    if (!imageURL) {
-      toast.error("No image to analyze", {
-        description: "Please upload an image first.",
+  const handleGenerateResultDescription = async () => {
+    if (!outputImageURL) {
+      toast.error("No processed image to analyze", {
+        description: "Please process an image first.",
         icon: <X className="h-4 w-4" />,
       });
       return;
@@ -121,8 +123,8 @@ const Index = () => {
     setIsGeneratingDescription(true);
     
     try {
-      // Convert image to base64
-      const response = await fetch(imageURL);
+      // Convert result image to base64
+      const response = await fetch(outputImageURL);
       const blob = await response.blob();
       const reader = new FileReader();
       
@@ -131,10 +133,10 @@ const Index = () => {
         
         try {
           const description = await generateImageDescription(base64data);
-          setDescription(description);
+          setResultDescription(description);
           
           toast.success("Description generated", {
-            description: "AI analysis complete.",
+            description: "AI analysis of segmented image complete.",
             icon: <Check className="h-4 w-4" />,
           });
         } catch (error) {
@@ -261,14 +263,6 @@ const Index = () => {
               )}
             </motion.div>
             
-            {/* Image Description Component */}
-            <ImageDescription
-              imageURL={imageURL}
-              description={description}
-              isGenerating={isGeneratingDescription}
-              onGenerateDescription={handleGenerateDescription}
-            />
-            
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -338,6 +332,17 @@ const Index = () => {
                 )}
               </AnimatePresence>
             </motion.div>
+            
+            {/* Result Image Description Component */}
+            {outputImageURL && (
+              <ImageDescription
+                imageURL={outputImageURL}
+                description={resultDescription}
+                isGenerating={isGeneratingDescription}
+                onGenerateDescription={handleGenerateResultDescription}
+                title="Segmented Image Analysis"
+              />
+            )}
           </div>
         </div>
         

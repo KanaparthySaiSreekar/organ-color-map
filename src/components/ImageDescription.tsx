@@ -9,13 +9,15 @@ interface ImageDescriptionProps {
   onGenerateDescription: () => void;
   description: string | null;
   isGenerating: boolean;
+  title?: string;
 }
 
 const ImageDescription: React.FC<ImageDescriptionProps> = ({
   imageURL,
   onGenerateDescription,
   description,
-  isGenerating
+  isGenerating,
+  title = "Image Analysis"
 }) => {
   if (!imageURL) return null;
 
@@ -28,13 +30,13 @@ const ImageDescription: React.FC<ImageDescriptionProps> = ({
     >
       <div className="flex items-center gap-2 mb-3">
         <Info className="h-4 w-4 text-primary" />
-        <h3 className="font-medium">Image Analysis</h3>
+        <h3 className="font-medium">{title}</h3>
       </div>
       
       {!description && !isGenerating && (
         <div className="mb-4">
           <p className="text-sm text-muted-foreground mb-3">
-            Generate an AI description of the uploaded image to understand what it contains.
+            Generate an AI description to understand what this image contains.
           </p>
           <Button 
             onClick={onGenerateDescription}
